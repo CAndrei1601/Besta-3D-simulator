@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Nișa TV 3D</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+/* VOICE: calm, precise, workshop-ready — a carpenter's plan you can turn in your hand
+   IDEA: a physical scale model of the TV niche on the workbench
+   PICTURE: the live 3D niche itself — wall, battens, oak slats, bracket, TV — fills the stage
+   COLOUR and TYPE: warm wall white, light-oak slats, pine battens, one orange accent for the bracket and cable channel; Archivo + Inter
+   LAYOUT: stage first (top on phone, left on desktop), controls and key figures beside/below */
+:root{color-scheme:light dark;
+--bg:light-dark(#f4f1ec,#15171a);--panel:light-dark(#ffffff,#1d2024);--ink:light-dark(#1b1d21,#eceae6);
+--quiet:light-dark(#5d6168,#a3a7ad);--line:light-dark(#e2ddd5,#2d3136);--stage:light-dark(#e9e5de,#101214);
+--acc:#f26b1d;--ok:light-dark(#1d8a4e,#4cc584);--warn:light-dark(#b7791f,#f0b252);--bad:light-dark(#c62f2f,#ff6b6b)}
+:root[data-theme=light]{color-scheme:light}:root[data-theme=dark]{color-scheme:dark}
+*{box-sizing:border-box;min-width:0}
+html,body{height:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 Inter,system-ui,sans-serif;overflow-x:clip}
+.app{display:grid;grid-template-columns:minmax(0,1fr) 370px;height:100vh}
+.stage{position:relative;background:var(--stage);overflow:hidden;touch-action:none}
+.stage canvas{display:block;width:100%;height:100%}
+#labels{position:absolute;inset:0;pointer-events:none}
+.lbl{font:600 12px/1.2 Inter,sans-serif;color:#fff;background:rgba(20,22,26,.82);padding:3px 7px;border-radius:6px;white-space:nowrap}
+.lbl.acc{background:var(--acc)}
+.lbl.soft{background:rgba(20,22,26,.6);font-weight:500}
+.views{position:absolute;left:12px;top:12px;display:flex;gap:6px;flex-wrap:wrap}
+.views button,.chip{font:500 13px Inter,sans-serif;border:1px solid var(--line);background:var(--panel);color:var(--ink);border-radius:999px;padding:0 14px;min-height:36px;cursor:pointer}
+.views button:focus-visible,.chip:focus-visible,input:focus-visible,.btn:focus-visible{outline:2px solid var(--acc);outline-offset:2px}
+.chip[aria-pressed=false]{opacity:.5;text-decoration:line-through}
+.hint{position:absolute;right:12px;bottom:10px;font-size:12px;color:var(--quiet);background:var(--panel);padding:4px 10px;border-radius:999px;opacity:.9}
+.side{background:var(--panel);border-left:1px solid var(--line);overflow-y:auto;padding:20px 20px 32px}
+h1{font:700 26px/1.1 Archivo,sans-serif;margin:0 0 4px;text-wrap:balance}
+.sub{color:var(--quiet);font-size:13px;margin:0 0 16px}
+.figs{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:18px}
+.fig{border:1px solid var(--line);border-radius:12px;padding:10px 12px}
+.fig b{display:block;font:700 24px/1.1 Archivo,sans-serif;white-space:nowrap}
+.fig span{font-size:12px;color:var(--quiet)}
+.fig.acc b{color:var(--acc)}
+h2{font:700 15px/1.2 Archivo,sans-serif;margin:18px 0 8px}
+.row{display:grid;grid-template-columns:1fr auto;align-items:center;gap:8px;margin:6px 0}
+.row label{font-size:14px}
+.row output{font-weight:600;white-space:nowrap}
+input[type=range]{width:100%;accent-color:var(--acc);height:32px;grid-column:1/-1}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.field label{display:block;font-size:12px;color:var(--quiet);margin-bottom:3px}
+.field input{width:100%;font:16px Inter,sans-serif;padding:8px 10px;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--ink);min-height:44px}
+.status{border-radius:12px;padding:10px 12px;font-weight:600;margin-top:8px;border:1px solid currentColor}
+.status.ok{color:var(--ok)}.status.warn{color:var(--warn)}.status.bad{color:var(--bad)}
+.status small{display:block;font-weight:400;color:var(--ink);opacity:.8;margin-top:2px}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.btn{font:600 14px Inter,sans-serif;border:0;border-radius:8px;background:var(--ink);color:var(--bg);padding:0 16px;min-height:44px;cursor:pointer;margin-top:12px}
+.holes{margin-top:10px;border:2px solid var(--acc);border-radius:12px;padding:10px 12px}
+.holes table{width:100%;border-collapse:collapse;font-size:14px}.holes td{padding:5px 0;border-bottom:1px solid var(--line)}.holes td+td{text-align:right;font-weight:600;white-space:nowrap}
+.holes p{margin:6px 0 0;font-size:12.5px;color:var(--quiet)}
+.note{font-size:12.5px;color:var(--quiet);margin-top:16px;border-top:1px solid var(--line);padding-top:12px}
+.err{position:absolute;inset:0;display:none;place-items:center;text-align:center;padding:24px;color:var(--quiet)}
+@media(max-width:900px){
+ .app{grid-template-columns:1fr;height:auto}
+ .stage{height:62vh;min-height:360px}
+ .side{border-left:0;border-top:1px solid var(--line)}
+}
+@media(prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<div class="app">
+ <div class="stage" id="stage">
+  <div id="labels"></div>
+  <div class="views" role="group" aria-label="Unghi de vedere">
+   <button data-v="front">Față</button><button data-v="persp">3D</button><button data-v="side">Lateral</button><button data-v="top">Sus</button><button data-v="all">Toată mobila</button>
+  </div>
+  <div class="hint">Trage cu degetul pentru rotire · două degete pentru zoom</div>
+  <div class="err" id="err">Nu s-a putut încărca motorul 3D. Reîncarcă pagina.</div>
+ </div>
+ <aside class="side">
+  <h1>Nișa TV în 3D</h1>
+  <p class="sub">Samsung 65S92H pe braț HAMA 220831, cu riflaj INTCO H537 pe șipci. Toate cotele sunt în cm. Înălțimile se măsoară de la blat, iar distanțele orizontale de la peretele din stânga.</p>
+  <div class="figs">
+   <div class="fig"><b id="fAxis">120,8</b><span>axa TV de la stânga</span></div>
+   <div class="fig"><b id="fGap">48,6</b><span>liber stânga / dreapta</span></div>
+   <div class="fig"><b id="fBottom">35,4</b><span>marginea de jos a TV-ului</span></div>
+   <div class="fig acc"><b id="fPlate">120,8 / 77,0</b><span>centrul plăcii (X / H)</span></div>
+  </div>
+
+  <h2>Mișcă TV-ul</h2>
+  <div class="row"><label for="sD">Braț scos de la perete</label><output id="oD"></output><input type="range" id="sD" min="8.4" max="42" step="0.1" value="20"></div>
+  <div class="row"><label for="sR">Rotire stânga / dreapta</label><output id="oR"></output><input type="range" id="sR" min="-45" max="45" step="1" value="0"></div>
+  <div class="status ok" id="status" role="status"></div>
+
+  <h2>Straturi</h2>
+  <div class="chips" id="chips">
+   <button class="chip" aria-pressed="true" data-l="struct">Mobilă BESTÅ</button>
+   <button class="chip" aria-pressed="true" data-l="battens">Șipci</button>
+   <button class="chip" aria-pressed="true" data-l="riflaj">Riflaj</button>
+   <button class="chip" aria-pressed="true" data-l="mount">Suport</button>
+   <button class="chip" aria-pressed="true" data-l="tv">TV</button>
+   <button class="chip" aria-pressed="true" data-l="dims">Cote</button>
+  </div>
+
+  <h2>Măsurătorile tale reale</h2>
+  <div class="grid2">
+   <div class="field"><label for="iW">Lățime nișă</label><input id="iW" type="number" inputmode="decimal" step="0.1" value="241.6"></div>
+   <div class="field"><label for="iH">Înălțime nișă</label><input id="iH" type="number" inputmode="decimal" step="0.1" value="154"></div>
+   <div class="field"><label for="iA">A – stânga TV → mijloc șine</label><input id="iA" type="number" inputmode="decimal" step="0.1" value="72.2"></div>
+   <div class="field"><label for="iB">B – jos TV → bara de agățare</label><input id="iB" type="number" inputmode="decimal" step="0.1" value="41.6"></div>
+   <div class="field"><label for="iC">C – bară peste centrul plăcii</label><input id="iC" type="number" inputmode="decimal" step="0.1" value="0"></div>
+  </div>
+  <button class="btn" id="reset">Revino la valorile din proiect</button>
+
+  <h2>Găurile din perete</h2>
+  <p class="sub" style="margin:0 0 8px">Măsoară pe placa suportului distanța dintre centrele găurilor, nu marginile lor.</p>
+  <div class="grid2">
+   <div class="field"><label for="iPW">Lățime placă</label><input id="iPW" type="number" inputmode="decimal" step="0.1" value="29.7"></div>
+   <div class="field"><label for="iPH">Înălțime placă</label><input id="iPH" type="number" inputmode="decimal" step="0.1" value="17.8"></div>
+   <div class="field"><label for="iHx">Între găuri, pe orizontală</label><input id="iHx" type="number" inputmode="decimal" step="0.1" placeholder="ex. 20,0"></div>
+   <div class="field"><label for="iHy">Între găuri, pe verticală</label><input id="iHy" type="number" inputmode="decimal" step="0.1" placeholder="ex. 10,0"></div>
+  </div>
+  <div id="holes" class="holes"></div>
+
+  <p class="note">Cotele nișei, TV-ului, șipcilor, canalului și îmbinărilor dintre panouri sunt calculate. Sunt orientative doar câteva elemente: placa suportului (implicit 29,7 × 17,8, după fișa unui braț Hama cu aceleași specificații; pune dimensiunile reale la „Găurile din perete”), decupajul (placa + ~8 cm pe laterale și ~7 cm sus și jos), pasul lamelelor (4 cm) și adâncimea corpului de sus și a blatului. Ansamblul are 41,4 cm adâncime. Comoda TV are ~38 cm, dedus din înălțimea totală de 230,8. B = 41,6 presupune că șinele stau pe centrul TV-ului. Înlocuiește A, B și C cu ce măsori pe TV și pe suport.</p>
+ </div>
+ </aside>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/renderers/CSS2DRenderer.js"></script>
+<script>
+{
+const stage = document.getElementById('stage');
+if (!window.THREE || !THREE.OrbitControls || !THREE.CSS2DRenderer) {
+  document.getElementById('err').style.display = 'grid';
+} else {
+const T = THREE;
+const TV = {w:144.43, h:83.17, t:3.99};
+const BAT = 2, FELT = 0.9, FACE = 4.1;
+const DEF = {W:241.6, H:154, A:72.2, B:41.6, C:0, PW:29.7, PH:17.8};
+let P = Object.assign({D:20, R:0, hx:0, hy:0}, DEF);
+try { const s = JSON.parse(localStorage.getItem('nisaTV3d') || 'null'); if (s) Object.assign(P, s); } catch(e) {}
+const layers = {struct:true, battens:true, riflaj:true, ghost:false, mount:true, tv:true, dims:true};
+const f = n => (Math.round(n*10 + 1e-6)/10).toFixed(1).replace('.', ',');
+
+const renderer = new T.WebGLRenderer({antialias:true});
+renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+stage.prepend(renderer.domElement);
+const css = new T.CSS2DRenderer();
+document.getElementById('labels').appendChild(css.domElement);
+Object.assign(css.domElement.style, {position:'absolute', inset:'0', pointerEvents:'none'});
+const scene = new T.Scene();
+const camera = new T.PerspectiveCamera(40, 1, 1, 5000);
+const controls = new T.OrbitControls(camera, renderer.domElement);
+controls.enableDamping = true; controls.maxDistance = 1600; controls.target.set(0, 0, 15);
+scene.add(new T.HemisphereLight(0xffffff, 0x8a8070, 0.62));
+const sun = new T.DirectionalLight(0xffffff, 0.6); sun.position.set(-150, 220, 300); scene.add(sun);
+const world = new T.Group(); scene.add(world);
+
+const M = c => new T.MeshStandardMaterial({color:c, roughness:.8});
+const mat = {
+  wall:M(0xe6e2da), cab:M(0xddd2bf), top:M(0xd2bb96), bat:M(0xc79a5a), oak:M(0xd8bb8a), felt:M(0x2b2b2d),
+  metal:new T.MeshStandardMaterial({color:0x222326, roughness:.4, metalness:.6}),
+  tv:new T.MeshStandardMaterial({color:0x111214, roughness:.35, metalness:.3}),
+  screen:new T.MeshStandardMaterial({color:0x0a1626, roughness:.15, metalness:.2, emissive:0x0b1a2e, emissiveIntensity:.4}),
+  door:M(0xcbc5b6), frame:M(0xd9c8a8), oak2:M(0xcdb68e), shadow:M(0x8f7c5d), floor:M(0xc89f68),
+  brass:new T.MeshStandardMaterial({color:0xb08d4a, roughness:.35, metalness:.8}),
+  glass:new T.MeshStandardMaterial({color:0xcfe0e0, roughness:.05, metalness:.1, transparent:true, opacity:.28, depthWrite:false}),
+  chan:new T.MeshBasicMaterial({color:0xf26b1d, transparent:true, opacity:.35}),
+  plate:new T.MeshStandardMaterial({color:0xf26b1d, roughness:.5})
+};
+
+function box(w, h, d, m, x, y, z) {
+  const b = new T.Mesh(new T.BoxGeometry(Math.max(w,.01), Math.max(h,.01), Math.max(d,.01)), m);
+  b.position.set(x, y, z); return b;
+}
+function rect(g, x0, x1, y0, y1, z0, z1, m) {
+  if (x1 - x0 > .05 && y1 - y0 > .05) g.add(box(x1-x0, y1-y0, z1-z0, m, (x0+x1)/2, (y0+y1)/2, (z0+z1)/2));
+}
+function label(g, text, x, y, z, cls) {
+  const el = document.createElement('div'); el.className = 'lbl ' + (cls || ''); el.textContent = text;
+  const o = new T.CSS2DObject(el); o.position.set(x, y, z); g.add(o); return o;
+}
+function line(g, a, b, color, dashed) {
+  const geo = new T.BufferGeometry().setFromPoints([new T.Vector3(...a), new T.Vector3(...b)]);
+  const m = dashed ? new T.LineDashedMaterial({color, dashSize:3, gapSize:2, depthTest:false}) : new T.LineBasicMaterial({color, depthTest:false});
+  const l = new T.Line(geo, m); if (dashed) l.computeLineDistances(); l.renderOrder = 10; g.add(l);
+}
+function dim(g, a, b, text, lp, cls) {
+  line(g, a, b, 0xf26b1d);
+  const d = new T.Vector3(...b).sub(new T.Vector3(...a)).normalize(), n = Math.abs(d.x) > .5 ? [0,2.5,0] : [2.5,0,0];
+  [a, b].forEach(p => line(g, [p[0]-n[0], p[1]-n[1], p[2]], [p[0]+n[0], p[1]+n[1], p[2]], 0xf26b1d));
+  label(g, text, ...(lp || [(a[0]+b[0])/2, (a[1]+b[1])/2, (a[2]+b[2])/2]), cls);
+}
+function clear(g) {
+  g.traverse(o => { if (o.geometry) o.geometry.dispose(); if (o.isCSS2DObject && o.element.parentNode) o.element.parentNode.removeChild(o.element); if (o.material && o.material.isLineBasicMaterial || o.material && o.material.isLineDashedMaterial) o.material.dispose(); });
+  while (g.children.length) g.remove(g.children[0]);
+}
+function setVis(g, v) { g.traverse(o => o.visible = v); }
+
+
+// ansamblu BESTÅ: 4 coloane de 60, rând de sus 38,8, comodă 240 × 38, adâncime 40 + uși 1,4
+function door(g, x0, x1, y0, y1, h) {
+  rect(g, x0+.15, x1-.15, y0+.15, y1-.15, 40, 41.4, mat.door);
+  const hx = h === 'r' ? x1 - 4 : x0 + 4, ym = (y0 + y1)/2;
+  if (h === 'r' || h === 'l') rect(g, hx-.5, hx+.5, ym-6, ym+6, 41.4, 43, mat.brass);
+  if (h === 'h') rect(g, (x0+x1)/2-6, (x0+x1)/2+6, y1-6, y1-5, 41.4, 43, mat.brass);
+}
+function glass(g, x0, x1, y0, y1) {
+  const b = 5;
+  rect(g, x0+.15, x1-.15, y1-b, y1-.15, 40, 41.4, mat.door);
+  rect(g, x0+.15, x1-.15, y0+.15, y0+b, 40, 41.4, mat.door);
+  rect(g, x0+.15, x0+b, y0+b, y1-b, 40, 41.4, mat.door);
+  rect(g, x1-b, x1-.15, y0+b, y1-b, 40, 41.4, mat.door);
+  rect(g, x0+b, x1-b, y0+b, y1-b, 40.6, 40.8, mat.glass);
+  rect(g, x0+1.5, x1-1.5, y0+1.5, y0+3, 1, 39.5, mat.oak2);
+}
+function column(g, x0, glassCol, hand) {
+  const x1 = x0 + 60, H = P.H;
+  rect(g, x0, x1, -38, H, 0, 39.9, mat.frame);
+  if (!glassCol) { const h = (H + 38)/3; for (let i = 0; i < 3; i++) door(g, x0, x1, -38 + i*h, -38 + (i+1)*h, hand); return; }
+  for (let i = 0; i < 3; i++) door(g, x0, x1, -38 + i*26, -38 + (i+1)*26, 'h');
+  const gh = (H - 40)/3;
+  for (let i = 0; i < 3; i++) glass(g, x0, x1, 40 + i*gh, 40 + (i+1)*gh);
+}
+function furniture(g, W, H) {
+  column(g, -120, false, 'r'); column(g, -60, true); column(g, W, false, 'l'); column(g, W + 60, true);
+  rect(g, -120, W + 120, H, H + 38.8, 0, 39.9, mat.frame);
+  const xs = [-120, -60, 0, W/4, W/2, 3*W/4, W, W + 60, W + 120];
+  for (let i = 0; i < 8; i++) door(g, xs[i], xs[i+1], H, H + 38.8);
+  const b0 = (W - 240)/2;
+  rect(g, b0, b0 + 240, -38, 0, 0, 39.9, mat.frame);
+  rect(g, b0 + 1.6, b0 + 58.4, -36.4, -1.6, 39.9, 40, mat.shadow);
+  rect(g, b0 + 1.6, b0 + 58.4, -19.8, -18.2, 1, 40.1, mat.frame);
+  for (let i = 1; i < 4; i++) door(g, b0 + i*60, b0 + (i+1)*60, -38, 0);
+  rect(g, -300, W + 300, -38.2, -38, -1, 260, mat.floor);
+  rect(g, -160, W + 160, -38, H + 60, -1.5, -1, mat.wall);
+}
+
+let G = {};
+function build() {
+  clear(world);
+  const {W, H, A, B, C, D, R} = P;
+  const axis = W/2, gx = (W - TV.w)/2, tb = (H - TV.h)/2;
+  const px = gx + A, py = tb + B - C;
+  const cw = P.PW + 16, ch = P.PH + 14, cL = px - cw/2, cR = px + cw/2, cB = py - ch/2, cT = py + ch/2;
+  G = {}; ['struct','battens','riflaj','mount','tv','dims','base'].forEach(k => { G[k] = new T.Group(); world.add(G[k]); });
+  world.position.set(-W/2, -H/2, 0);
+
+  // perete + mobilier (adâncimi aproximative)
+  G.base.add(box(W, H, 1, mat.wall, W/2, H/2, -.5));
+  furniture(G.struct, W, H);
+
+  // șipci: 4 rânduri, canal central 10 cm, fără ramă la decupaj
+  const rows = [0,1,2,3].map(i => 4 + i*(H-8)/3);
+  rows.forEach(y => {
+    let iv = y - 2 < cB ? [[0, axis-5], [axis+5, W]] : [[0, W]];
+    if (y+2 > cB && y-2 < cT) iv = iv.flatMap(([a,b]) => [[a, Math.min(b, cL-1)], [Math.max(a, cR+1), b]]);
+    iv.forEach(([a,b]) => rect(G.battens, a, b, y-2, y+2, 0, BAT, mat.bat));
+  });
+  rect(G.battens, axis-5, axis+5, 0, cB, .05, .25, mat.chan);
+
+  // riflaj: panouri verticale simetrice față de axă, decupaj în jurul suportului
+  const e = (W - 168)/2, bounds = [0, e, e+56, e+112, e+168, W];
+  const oak = layers.ghost ? mat.oak.clone() : mat.oak, felt = layers.ghost ? mat.felt.clone() : mat.felt;
+  if (layers.ghost) [oak, felt].forEach(m => { m.transparent = true; m.opacity = .22; m.depthWrite = false; });
+  for (let i = 0; i < 5; i++) {
+    const x0 = bounds[i] + .05, x1 = bounds[i+1] - .05;
+    if (x1 <= cL || x0 >= cR) { rect(G.riflaj, x0, x1, 0, H, BAT, BAT+FELT, felt); continue; }
+    rect(G.riflaj, x0, Math.max(x0, cL), 0, H, BAT, BAT+FELT, felt);
+    rect(G.riflaj, Math.min(x1, cR), x1, 0, H, BAT, BAT+FELT, felt);
+    rect(G.riflaj, Math.max(x0, cL), Math.min(x1, cR), 0, cB, BAT, BAT+FELT, felt);
+    rect(G.riflaj, Math.max(x0, cL), Math.min(x1, cR), cT, H, BAT, BAT+FELT, felt);
+  }
+  const sw = 2.7;
+  for (let k = -40; k <= 40; k++) {
+    const s0 = axis + k*4 - sw/2, s1 = s0 + sw;
+    if (s0 < .3 || s1 > W - .3) continue;
+    if (s1 > cL && s0 < cR) { rect(G.riflaj, s0, s1, 0, cB, BAT+FELT, FACE, oak); rect(G.riflaj, s0, s1, cT, H, BAT+FELT, FACE, oak); }
+    else rect(G.riflaj, s0, s1, 0, H, BAT+FELT, FACE, oak);
+  }
+  bounds.slice(1, -1).forEach(x => line(G.riflaj, [x, 0, FACE+.1], [x, H, FACE+.1], 0x6b5a3e, true));
+
+  // suport + TV
+  G.mount.add(box(P.PW, P.PH, 1.5, mat.plate, px, py, .75));
+  const armLen = D - 1.5 - 1.2;
+  if (armLen > .2) G.mount.add(box(6, 5, armLen, mat.metal, px, py + C/2, 1.5 + armLen/2));
+  const pivot = new T.Group(); pivot.position.set(px, py + C, D); pivot.rotation.y = R * Math.PI/180;
+  pivot.add(box(64, 4, 1.2, mat.metal, 0, 0, -.6));
+  pivot.add(box(3, 41.8, 1, mat.metal, -15, 0, -.5), box(3, 41.8, 1, mat.metal, 15, 0, -.5));
+  const ox = axis - px, oy = tb + TV.h/2 - (py + C);
+  const tvG = new T.Group();
+  tvG.add(box(TV.w, TV.h, TV.t, mat.tv, ox, oy, TV.t/2));
+  tvG.add(box(TV.w - 1.2, TV.h - 1.2, .1, mat.screen, ox, oy, TV.t + .06));
+  pivot.add(tvG); G.mount.add(pivot);
+
+  // coliziune colț spate TV cu fața riflajului
+  const th = R * Math.PI/180, xs = [ox - TV.w/2, ox + TV.w/2];
+  const minZ = D + Math.min(...xs.map(x => -x * Math.sin(th)));
+  const clr = minZ - FACE;
+  const st = document.getElementById('status');
+  const edgeCol = clr < 0 ? 0xff4d4d : clr < 2 ? 0xf0b252 : 0x4cc584;
+  const edges = new T.LineSegments(new T.EdgesGeometry(new T.BoxGeometry(TV.w, TV.h, TV.t)), new T.LineBasicMaterial({color:edgeCol}));
+  edges.position.set(ox, oy, TV.t/2); tvG.add(edges);
+  st.className = 'status ' + (clr < 0 ? 'bad' : clr < 2 ? 'warn' : 'ok');
+  st.innerHTML = '';
+  st.append(clr < 0 ? 'Lovește riflajul' : clr < 2 ? 'La limită: sub 2 cm' : 'OK, nu atinge riflajul');
+  const sm = document.createElement('small');
+  sm.textContent = 'Spațiu între colțul din spate al TV-ului și riflaj: ' + f(clr) + ' cm';
+  st.append(sm);
+
+  // cote
+  const zd = FACE + 1.5;
+  dim(G.dims, [0, H+12, zd], [W, H+12, zd], f(W) + ' lățime nișă', [W*0.25, H+12, zd]);
+  dim(G.dims, [W+8, 0, zd], [W+8, H, zd], f(H) + ' înălțime', [W+8, H*0.78, zd]);
+  if (layers.tv) {
+    dim(G.dims, [0, tb+TV.h/2, zd], [gx, tb+TV.h/2, zd], f(gx));
+    dim(G.dims, [W-gx, tb+TV.h/2, zd], [W, tb+TV.h/2, zd], f(gx));
+    const xd = axis + TV.w/2 - 12;
+    dim(G.dims, [xd, 0, zd], [xd, tb, zd], f(tb) + ' jos');
+    dim(G.dims, [xd, tb+TV.h, zd], [xd, H, zd], f(H - tb - TV.h) + ' sus');
+  } else {
+    const PW = P.PW, PH = P.PH, pl = px - PW/2, pr = px + PW/2, pb = py - PH/2, pt = py + PH/2, yd = py - 4, xv = px + PW/2 + 10;
+    dim(G.dims, [0, yd, zd], [pl, yd, zd], f(pl) + ' stânga');
+    dim(G.dims, [pr, yd, zd], [W, yd, zd], f(W - pr) + ' dreapta');
+    dim(G.dims, [xv, 0, zd], [xv, pb, zd], f(pb) + ' până jos');
+    dim(G.dims, [xv, pt, zd], [xv, H, zd], f(H - pt) + ' până sus');
+    label(G.dims, 'placă ' + f(PW) + ' × ' + f(PH), px, pt + 6, zd, 'soft');
+  }
+  line(G.dims, [axis, -2, zd], [axis, H+4, zd], 0xf26b1d, true);
+  dim(G.dims, [-120, H+52, 42], [W+120, H+52, 42], f(W+240) + ' total');
+  dim(G.dims, [W+128, -38, 42], [W+128, H+38.8, 42], f(H+38+38.8) + ' înălțime totală');
+  dim(G.dims, [W+124, -38, 0], [W+124, -38, 41.4], '41,4 adâncime');
+  label(G.dims, 'axa ' + f(axis), axis, H - 6, zd);
+    label(G.dims, 'placă X ' + f(px) + ' · H ' + f(py), px + 30, py - 12, 2, 'acc');
+      if (layers.tv) label(G.dims, 'TV la ' + f(D) + ' de perete', ox + px, tb + TV.h + 4, D + TV.t, 'soft');
+
+  const hb = document.getElementById('holes'), SAG = 0.3;
+  if (P.hx > 0 && P.hy > 0) {
+    const hl = [['Stânga sus', px - P.hx/2, py + SAG + P.hy/2], ['Dreapta sus', px + P.hx/2, py + SAG + P.hy/2], ['Stânga jos', px - P.hx/2, py + SAG - P.hy/2], ['Dreapta jos', px + P.hx/2, py + SAG - P.hy/2]];
+    hb.innerHTML = '<table>' + hl.map(h => '<tr><td>' + h[0] + '</td><td>X ' + f(h[1]) + ' · H ' + f(h[2]) + '</td></tr>').join('') + '</table><p>X se măsoară de la peretele lateral stâng al nișei, iar H de la blatul comodei. Valorile includ +0,3 cm pentru lăsarea brațului sub greutate.</p>';
+    hl.forEach(h => G.mount.add(box(1.2, 1.2, 1.7, mat.metal, h[1], h[2] - SAG, .85)));
+  } else {
+    hb.innerHTML = '<p style="margin:0">Centrul plăcii: <b>X ' + f(px) + ' · H ' + f(py + SAG) + '</b> (cu +0,3 pentru lăsare). Completează distanțele dintre găuri ca să primești coordonatele fiecărei găuri.</p>';
+  }
+  document.getElementById('fAxis').textContent = f(axis);
+  document.getElementById('fGap').textContent = f(gx);
+  document.getElementById('fBottom').textContent = f(tb);
+  document.getElementById('fPlate').textContent = f(px) + ' / ' + f(py);
+  document.getElementById('oD').textContent = f(D) + ' cm';
+  document.getElementById('oR').textContent = R + '°';
+  applyLayers();
+  try { localStorage.setItem('nisaTV3d', JSON.stringify(P)); } catch(e) {}
+}
+function applyLayers() {
+  ['struct','battens','riflaj','dims'].forEach(k => setVis(G[k], layers[k]));
+  setVis(G.mount, true);
+  G.mount.children.forEach(o => {
+    if (o.isGroup) { o.visible = true; o.children.forEach(c => { if (c.isGroup) setVis(c, layers.tv); else c.visible = layers.mount; }); }
+    else o.visible = layers.mount;
+  });
+}
+
+const VIEWS = {front:[0,0,380], persp:[-260,110,470], side:[420,40,170], top:[0,420,140], all:[0,10,760]};
+function view(v) { camera.position.set(...VIEWS[v]); controls.target.set(0, v === 'top' ? 0 : 0, 15); controls.update(); }
+document.querySelectorAll('.views button').forEach(b => b.addEventListener('click', () => view(b.dataset.v)));
+document.querySelectorAll('#chips .chip').forEach(b => {
+  b.setAttribute('aria-pressed', String(layers[b.dataset.l]));
+  b.addEventListener('click', () => {
+    layers[b.dataset.l] = !layers[b.dataset.l]; b.setAttribute('aria-pressed', String(layers[b.dataset.l]));
+    (b.dataset.l === 'ghost' || b.dataset.l === 'tv') ? build() : applyLayers();
+  });
+});
+const sD = document.getElementById('sD'), sR = document.getElementById('sR');
+sD.value = P.D; sR.value = P.R;
+sD.addEventListener('input', () => { P.D = +sD.value; build(); });
+sR.addEventListener('input', () => { P.R = +sR.value; build(); });
+const ids = {iW:'W', iH:'H', iA:'A', iB:'B', iC:'C', iPW:'PW', iPH:'PH', iHx:'hx', iHy:'hy'};
+Object.entries(ids).forEach(([id, k]) => {
+  const el = document.getElementById(id); el.value = P[k] || (k === 'hx' || k === 'hy' ? '' : P[k]);
+  el.addEventListener('input', () => {
+    const v = parseFloat(String(el.value).replace(',', '.'));
+    if (!isFinite(v)) { if (k === 'hx' || k === 'hy') { P[k] = 0; build(); } return; }
+    if ((k === 'W' && v < 180) || (k === 'H' && v < 100) || ((k === 'PW' || k === 'PH') && (v < 5 || v > 80))) return;
+    P[k] = v; build();
+  });
+});
+document.getElementById('reset').addEventListener('click', () => {
+  Object.assign(P, DEF, {D:20, R:0}); sD.value = 20; sR.value = 0;
+  Object.entries(ids).forEach(([id, k]) => document.getElementById(id).value = P[k] || (k === 'hx' || k === 'hy' ? '' : P[k])); build();
+});
+
+function bg() { scene.background = new T.Color(getComputedStyle(stage).backgroundColor); }
+new MutationObserver(bg).observe(document.documentElement, {attributes:true, attributeFilter:['data-theme']});
+matchMedia('(prefers-color-scheme: dark)').addEventListener('change', bg);
+function size() {
+  const w = stage.clientWidth, h = stage.clientHeight;
+  renderer.setSize(w, h, false); css.setSize(w, h); camera.aspect = w/h; camera.updateProjectionMatrix();
+}
+const ro = new ResizeObserver(size); ro.observe(stage);
+bg(); size(); build(); view('persp');
+(function loop() { requestAnimationFrame(loop); controls.update(); renderer.render(scene, camera); css.render(scene, camera); })();
+}
+}
+</script>
+</body>
+</html>
